@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Replace these with your actual PostgreSQL credentials
+DB_USER="your_username"
+DB_NAME="your_database_name"
+
+# Prompt for the PostgreSQL password
+read -sp "Enter PostgreSQL password: " DB_PASSWORD
+
+# Create the database
+psql -U $DB_USER -d postgres -c "CREATE DATABASE $DB_NAME"
+
+echo "Database '$DB_NAME' created successfully!"
+*******************
+
+#!/bin/bash
+
+# Get username and database name from command line arguments
+DB_USER="$1"
+DB_NAME="$2"
+
+# Create the database
+psql -U $DB_USER -d postgres -c "CREATE DATABASE $DB_NAME"
+
+echo "Database '$DB_NAME' created successfully!"
+
