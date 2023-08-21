@@ -1,0 +1,35 @@
+WITH selected_values AS (
+    SELECT col1, col2
+    FROM table1
+    WHERE col3 = 'some_value'
+)
+SELECT colA, colB
+FROM table2
+WHERE (colA, colB) IN (SELECT col1, col2 FROM selected_values);
+##############
+
+WITH LastCalls AS (
+    SELECT DISTINCT ON (caller_number)
+           caller_number,
+           receiver_number,
+           date,
+           callendtime,
+           callstarttime
+      FROM calls
+     ORDER BY caller_number, date DESC
+)
+SELECT lc.caller_number,
+       lc.receiver_number,
+       lc.date AS last_call_date,
+       lc.callendtime AS last_call_endtime,
+       lc.callstarttime AS last_call_starttime,
+       current_date - lc.date AS days_inactive
+  FROM LastCalls lc;
+##########
+SELECT *
+FROM your_table_name t1
+WHERE (date, call_end_time) IN (
+    SELECT MAX(date), MAX(call_end_time)
+    FROM your_table_name t2
+    WHERE t1.caller_number = t2.caller_number
+)
