@@ -23,4 +23,36 @@ DB_NAME="$2"
 psql -U $DB_USER -d postgres -c "CREATE DATABASE $DB_NAME"
 
 echo "Database '$DB_NAME' created successfully!"
+#########
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class DatabaseCreationExample {
+
+    public static void main(String[] args) {
+        if (args.length < 4) {
+            System.out.println("Usage: java DatabaseCreationExample <jdbcUrl> <username> <password> <newDatabaseName>");
+            return;
+        }
+
+        String jdbcUrl = args[0];
+        String username = args[1];
+        String password = args[2];
+        String newDatabaseName = args[3];
+
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password)) {
+            Statement statement = connection.createStatement();
+
+            // Create a new database
+            String createDatabaseSql = "CREATE DATABASE " + newDatabaseName;
+            statement.executeUpdate(createDatabaseSql);
+
+            System.out.println("Database '" + newDatabaseName + "' created successfully!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+}
