@@ -1,0 +1,33 @@
+import java.io.*;
+import java.util.zip.*;
+
+public class WarExtractor {
+    public static void main(String[] args) {
+        String warFilePath = "src/main/resources/your.war";  // Replace with the actual path to your WAR file
+        String outputDirectory = "path/to/output/folder";   // Replace with the desired output directory
+
+        try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(warFilePath))) {
+            ZipEntry entry;
+            byte[] buffer = new byte[4096];
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                String entryName = entry.getName();
+                File entryFile = new File(outputDirectory + File.separator + entryName);
+
+                if (entry.isDirectory()) {
+                    entryFile.mkdirs();
+                } else {
+                    try (FileOutputStream outputStream = new FileOutputStream(entryFile)) {
+                        int bytesRead;
+                        while ((bytesRead = zipInputStream.read(buffer)) != -1) {
+                            outputStream.write(buffer, 0, bytesRead);
+                        }
+                    }
+                }
+                zipInputStream.closeEntry();
+            }
+            System.out.println("WAR file extracted successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
