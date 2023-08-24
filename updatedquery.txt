@@ -1,0 +1,32 @@
+Certainly! Based on your requirements, you can use a combination of `ORDER BY`, `LIMIT`, and date functions to achieve this. Here's a simple SQL query that should give you the desired results:
+
+```sql
+SELECT
+    caller_number,
+    receiver_number,
+    date,
+    callstarttime,
+    callendtime,
+    DATEDIFF('day', LAG(date) OVER (ORDER BY date DESC), date) AS days_inactive
+FROM your_table
+ORDER BY date DESC, callendtime DESC
+LIMIT 1;
+```
+
+Here's a breakdown of what this query does:
+
+1. It selects the relevant columns from your table.
+
+2. It uses the `LAG()` window function to retrieve the previous date value for each row, ordered by date in descending order.
+
+3. It calculates the number of days between the current date and the previous date using the `DATEDIFF()` function.
+
+4. The `ORDER BY` clause orders the results by date in descending order and then by `callendtime` in descending order. This way, if there are multiple calls on the same date, the latest `callendtime` will appear first.
+
+5. The `LIMIT 1` clause ensures that only the details of the last call (latest date and latest `callendtime`) are retrieved.
+
+Replace `your_table` with the actual name of your table.
+
+Please note that the specific date functions and syntax might vary depending on your PostgreSQL version. The example provided uses the `DATEDIFF()` function for date difference calculation, but you can use `EXTRACT()` or other date functions if needed.
+
+Always test your queries with your data to ensure they provide the expected results.
