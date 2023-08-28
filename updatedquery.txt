@@ -30,3 +30,24 @@ Replace `your_table` with the actual name of your table.
 Please note that the specific date functions and syntax might vary depending on your PostgreSQL version. The example provided uses the `DATEDIFF()` function for date difference calculation, but you can use `EXTRACT()` or other date functions if needed.
 
 Always test your queries with your data to ensure they provide the expected results.
+
+//common recievernumber 
+SELECT receiver_number, COUNT(DISTINCT caller_number) AS common_caller_count
+FROM cdr_data
+GROUP BY receiver_number
+HAVING common_caller_count > 1
+ORDER BY common_caller_count DESC;
+
+//common imei number 
+SELECT imei_number, COUNT(*) AS frequency
+FROM cdr_data
+GROUP BY imei_number
+HAVING COUNT(*) > 1
+ORDER BY frequency DESC;
+
+//imei timeline 
+
+SELECT imei_number, MIN(date) AS start_date, MAX(date) AS end_date
+FROM cdr_data
+GROUP BY imei_number
+ORDER BY start_date;
