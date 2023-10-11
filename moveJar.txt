@@ -1,0 +1,28 @@
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
+public class MoveJarFile {
+    public static void main(String[] args) {
+        String sourcePath = "path/to/your/source.jar";
+        String destinationPath = "path/to/your/destination/directory/";
+
+        File sourceFile = new File(sourcePath);
+        File destinationDirectory = new File(destinationPath);
+
+        if (sourceFile.exists() && destinationDirectory.isDirectory()) {
+            try {
+                Path source = sourceFile.toPath();
+                Path destination = new File(destinationDirectory, sourceFile.getName()).toPath();
+                Files.move(source, destination, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("JAR file moved successfully.");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            System.err.println("Source JAR file or destination directory does not exist.");
+        }
+    }
+}
