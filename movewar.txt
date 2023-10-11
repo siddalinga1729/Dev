@@ -1,0 +1,29 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class WarMover {
+
+    public static void main(String[] args) {
+        try {
+            moveWarToTomcatFolder();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void moveWarToTomcatFolder() throws IOException {
+        // Path to the WAR file in the resources folder
+        Path warPathInResources = Paths.get("src/main/resources/yourwarfile.war");
+
+        // Path to the Tomcat folder in /opt
+        Path tomcatFolderPath = Paths.get("/opt/tomcat/webapps/");
+
+        // Move the WAR file to the Tomcat folder
+        Path destinationPath = tomcatFolderPath.resolve(warPathInResources.getFileName());
+        Files.copy(warPathInResources, destinationPath);
+
+        System.out.println("WAR file moved to Tomcat folder.");
+    }
+}
