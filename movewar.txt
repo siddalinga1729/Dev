@@ -81,3 +81,41 @@ public class FileMoverService {
         }
     }
 }
+
+
++++++++++
+
+import javax.servlet.*;
+import javax.servlet.annotation.WebFilter;
+import java.io.IOException;
+
+@WebFilter("/*")
+public class URLRewriteFilter implements Filter {
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String requestURI = httpRequest.getRequestURI();
+
+        // Remove the "analytics" context from the URL
+        if (requestURI.startsWith("/analytics")) {
+            String newURI = requestURI.replaceFirst("/analytics", "");
+            RequestDispatcher dispatcher = request.getRequestDispatcher(newURI);
+            dispatcher.forward(request, response);
+            return;
+        }
+
+        // Continue with the chain for other requests
+        chain.doFilter(request, response);
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    @Override
+    public void destroy() {
+    }
+}
