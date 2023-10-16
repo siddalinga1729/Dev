@@ -1,0 +1,30 @@
+import org.springframework.stereotype.Component;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
+@Component
+public class UrlRewriteFilter implements Filter {
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        String rewrittenURI = rewriteURI(httpRequest.getRequestURI());
+        RequestDispatcher dispatcher = request.getRequestDispatcher(rewrittenURI);
+        dispatcher.forward(request, response);
+    }
+
+    private String rewriteURI(String uri) {
+        // Remove the "analytics" context from the URL
+        return uri.replaceFirst("/analytics", "");
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    @Override
+    public void destroy() {
+    }
+}
