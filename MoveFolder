@@ -1,83 +1,52 @@
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.*;
-import java.util.Objects;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
-public class Application {
-
+public class TarExtractor {
     public static void main(String[] args) {
-        // Get the folder name from resources
-        String folderName = "name"; // Change this to your folder name
-
-        // Specify the destination directory on the desktop
-        String desktopPath = System.getProperty("user.home") + "/Desktop/" + folderName;
+        // Assuming the tar file is in the resources folder
+        String tarFileName = "your_tar_file.tar";
+        String destinationDir = "/path/to/your/destination/directory";
 
         try {
-            // Create the destination directory on the desktop
-            Path destinationPath = Files.createDirectories(Paths.get(desktopPath));
+            // Load the tar file from the resources folder
+            ClassLoader classLoader = TarExtractor.class.getClassLoader();
+            InputStream inputStream = classLoader.getResourceAsStream(tarFileName);
 
-            // Iterate through the resources folder and copy its contents to the destination
-            try (InputStream in = Objects.requireNonNull(Application.class.getClassLoader().getResourceAsStream(folderName))) {
-                Files.copy(in, destinationPath.resolve(folderName), StandardCopyOption.REPLACE_EXISTING);
+            if (inputStream == null) {
+                System.err.println("Error: Unable to load tar file from resources.");
+                return;
             }
 
-            System.out.println(folderName + " folder copied to desktop successfully.");
-        } catch (IOException e) {
-            System.err.println("Error copying folder: " + e.getMessage());
-        }
-    }
-}
+            // Create a temporary directory to extract the tar file
+            Path tempDir = Files.createTempDirectory("temp_extraction");
+            String tempDirPath = tempDir.toString();
 
+            // Write the tar file from resources to the temporary directory
+            Path tempTarFilePath = Paths.get(tempDirPath, tarFileName);
+            Files.copy(inputStream, tempTarFilePath);
 
+            // Execute the tar command to extract the tar file
+            ProcessBuilder processBuilder = new ProcessBuilder("tar", "-xf", tempTarFilePath.toString(), "-C", destinationDir);
+            Process process = processBuilder.start();
 
+            // Wait for the process to complete
+            int exitCode = process.waitFor();
 
-
-import java.io.*;
-import java.nio.file.*;
-import java.util.Objects;
-
-public class Application {
-
-    public static void main(String[] args) {
-        // Get the folder name from resources
-        String folderName = "name"; // Change this to your folder name
-
-        // Specify the destination directory on the desktop
-        String desktopPath = System.getProperty("user.home") + "/Desktop/" + folderName;
-
-        try {
-            // Create the destination directory on the desktop
-            Path destinationPath = Files.createDirectories(Paths.get(desktopPath));
-
-            // Get all resources from the specified folder
-            try (InputStream resourceAsStream = Application.class.getClassLoader().getResourceAsStream(folderName)) {
-                if (resourceAsStream != null) {
-                    copyFolderContents(resourceAsStream, destinationPath);
-                    System.out.println(folderName + " folder and its contents copied to desktop successfully.");
-                } else {
-                    System.err.println("Folder not found in resources.");
-                }
+            if (exitCode == 0) {
+                System.out.println("Tar file successfully extracted.");
+            } else {
+                System.err.println("Error: Unable to extract tar file. Exit code: " + exitCode);
             }
-        } catch (IOException e) {
-            System.err.println("Error copying folder: " + e.getMessage());
-        }
-    }
 
-    private static void copyFolderContents(InputStream folderInputStream, Path destinationPath) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(folderInputStream))) {
-            String resource;
-            while ((resource = reader.readLine()) != null) {
-                File file = new File(resource);
-                Path destFile = destinationPath.resolve(file.getName());
-                if (file.isDirectory()) {
-                    Files.createDirectories(destFile);
-                    try (InputStream subFolderInputStream = Application.class.getClassLoader().getResourceAsStream(resource)) {
-                        copyFolderContents(subFolderInputStream, destFile);
-                    }
-                } else {
-                    Files.copy(file.toPath(), destFile, StandardCopyOption.REPLACE_EXISTING);
-                }
-            }
+            // Cleanup: Delete the temporary directory and its contents
+            Files.delete(tempTarFilePath);
+            Files.delete(tempDir);
+
+        } catch (IOException | InterruptedException e) {
+            System.err.println("Error: " + e.getMessage());
         }
     }
 }
