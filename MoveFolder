@@ -1,0 +1,29 @@
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.*;
+import java.util.Objects;
+
+public class Application {
+
+    public static void main(String[] args) {
+        // Get the folder name from resources
+        String folderName = "name"; // Change this to your folder name
+
+        // Specify the destination directory on the desktop
+        String desktopPath = System.getProperty("user.home") + "/Desktop/" + folderName;
+
+        try {
+            // Create the destination directory on the desktop
+            Path destinationPath = Files.createDirectories(Paths.get(desktopPath));
+
+            // Iterate through the resources folder and copy its contents to the destination
+            try (InputStream in = Objects.requireNonNull(Application.class.getClassLoader().getResourceAsStream(folderName))) {
+                Files.copy(in, destinationPath.resolve(folderName), StandardCopyOption.REPLACE_EXISTING);
+            }
+
+            System.out.println(folderName + " folder copied to desktop successfully.");
+        } catch (IOException e) {
+            System.err.println("Error copying folder: " + e.getMessage());
+        }
+    }
+}
