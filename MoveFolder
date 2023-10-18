@@ -27,3 +27,57 @@ public class Application {
         }
     }
 }
+
+
+
+
+
+import java.io.*;
+import java.nio.file.*;
+import java.util.Objects;
+
+public class Application {
+
+    public static void main(String[] args) {
+        // Get the folder name from resources
+        String folderName = "name"; // Change this to your folder name
+
+        // Specify the destination directory on the desktop
+        String desktopPath = System.getProperty("user.home") + "/Desktop/" + folderName;
+
+        try {
+            // Create the destination directory on the desktop
+            Path destinationPath = Files.createDirectories(Paths.get(desktopPath));
+
+            // Get all resources from the specified folder
+            try (InputStream resourceAsStream = Application.class.getClassLoader().getResourceAsStream(folderName)) {
+                if (resourceAsStream != null) {
+                    copyFolderContents(resourceAsStream, destinationPath);
+                    System.out.println(folderName + " folder and its contents copied to desktop successfully.");
+                } else {
+                    System.err.println("Folder not found in resources.");
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Error copying folder: " + e.getMessage());
+        }
+    }
+
+    private static void copyFolderContents(InputStream folderInputStream, Path destinationPath) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(folderInputStream))) {
+            String resource;
+            while ((resource = reader.readLine()) != null) {
+                File file = new File(resource);
+                Path destFile = destinationPath.resolve(file.getName());
+                if (file.isDirectory()) {
+                    Files.createDirectories(destFile);
+                    try (InputStream subFolderInputStream = Application.class.getClassLoader().getResourceAsStream(resource)) {
+                        copyFolderContents(subFolderInputStream, destFile);
+                    }
+                } else {
+                    Files.copy(file.toPath(), destFile, StandardCopyOption.REPLACE_EXISTING);
+                }
+            }
+        }
+    }
+}
